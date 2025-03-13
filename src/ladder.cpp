@@ -62,7 +62,47 @@ bool edit_distance_within(const std::string& str1, const std::string& str2, int 
 
 // Check if two words are adjacent (differ by exactly one edit operation)
 bool is_adjacent(const string& word1, const string& word2) {
-    return edit_distance_within(word1, word2, 1);
+    // If lengths differ by more than 1, they can't be adjacent
+    if (abs(int(word1.length()) - int(word2.length())) > 1) {
+        return false;
+    }
+    
+    // Case 1: Same length - must differ by exactly one character
+    if (word1.length() == word2.length()) {
+        int differences = 0;
+        for (size_t i = 0; i < word1.length(); i++) {
+            if (word1[i] != word2[i]) {
+                differences++;
+                if (differences > 1) {
+                    return false;
+                }
+            }
+        }
+        return differences == 1;
+    }
+    
+    // Case 2: word1 is longer - must be a deletion
+    if (word1.length() == word2.length() + 1) {
+        return is_deletion(word1, word2);
+    }
+    
+    // Case 3: word2 is longer - must be an insertion
+    if (word2.length() == word1.length() + 1) {
+        return is_deletion(word2, word1);
+    }
+    
+    return false;
+}
+
+// Helper function to check if longer_word becomes shorter_word after a single deletion
+bool is_deletion(const string& longer_word, const string& shorter_word) {
+    for (size_t i = 0; i < longer_word.length(); i++) {
+        string test = longer_word.substr(0, i) + longer_word.substr(i + 1);
+        if (test == shorter_word) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // Load dictionary words from a file
