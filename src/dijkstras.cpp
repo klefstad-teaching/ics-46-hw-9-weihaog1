@@ -1,4 +1,5 @@
 #include "dijkstras.h"
+#include <algorithm>  // Add this line for reverse()
 
 struct Node {
     int vertex;
