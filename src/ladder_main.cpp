@@ -8,8 +8,8 @@ int main() {
     load_words(word_list, "words.txt");
     
     // Uncomment to run verification tests
-    // verify_word_ladder();
-    // return 0;
+    verify_word_ladder();
+    return 0;
     
     string start_word, end_word;
     cout << "Enter start word: ";

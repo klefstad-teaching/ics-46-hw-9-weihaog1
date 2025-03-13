@@ -1,4 +1,5 @@
 #include "ladder.h"
+#include <unistd.h>  // Add this for getcwd()
 
 void error(string word1, string word2, string msg) {
     cerr << "Error: " << msg << " for words '" << word1 << "' and '" << word2 << "'" << endl;
@@ -9,6 +10,20 @@ bool edit_distance_within(const std::string& str1, const std::string& str2, int 
     // Early exit if the strings differ in length by more than d
     if (abs(int(str1.length()) - int(str2.length())) > d) {
         return false;
+    }
+    
+    // Special case for insertions at beginning
+    if (str2.length() == str1.length() + 1) {
+        if (str2.substr(1) == str1) {
+            return true;  // Insertion at beginning
+        }
+    }
+    
+    // Special case for deletions at beginning
+    if (str1.length() == str2.length() + 1) {
+        if (str1.substr(1) == str2) {
+            return true;  // Deletion at beginning
+        }
     }
     
     // Create a matrix for dynamic programming
@@ -52,6 +67,13 @@ bool is_adjacent(const string& word1, const string& word2) {
 
 // Load dictionary words from a file
 void load_words(set<string>& word_list, const string& file_name) {
+    // Print current directory for debugging
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        cout << "Current working directory: " << cwd << endl;
+    }
+    
+    cout << "Attempting to open: " << file_name << endl;
     ifstream file(file_name);
     if (!file) {
         cerr << "Error: Cannot open file " << file_name << endl;
@@ -74,8 +96,7 @@ void load_words(set<string>& word_list, const string& file_name) {
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
     // Check if start and end words are the same
     if (begin_word == end_word) {
-        vector<string> result = {begin_word};
-        return result;
+        return vector<string>();  // Return empty vector for same word
     }
     
     // Start BFS
@@ -122,15 +143,14 @@ void print_word_ladder(const vector<string>& ladder) {
         return;
     }
     
+    cout << "Word ladder found: ";
     for (size_t i = 0; i < ladder.size(); i++) {
         cout << ladder[i];
         if (i < ladder.size() - 1) {
-            cout << " → ";
+            cout << " ";
         }
     }
-    cout << endl;
-    
-    cout << "Word ladder length: " << ladder.size() << endl;
+    cout << " " << endl;
 }
 
 // Verify word ladder implementation with test cases
