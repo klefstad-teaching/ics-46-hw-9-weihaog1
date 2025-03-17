@@ -133,12 +133,15 @@ void load_words(set<string>& word_list, const string& file_name) {
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
     // Check if start and end words are the same
     if (begin_word == end_word) {
-        return vector<string>();  // Return empty vector for same word
+        return {begin_word};  // Return just the word if same
     }
+    
+    // Convert set to unordered_set for faster lookups
+    unordered_set<string> dict(word_list.begin(), word_list.end());
     
     // Start BFS
     queue<vector<string>> ladder_queue;
-    set<string> visited;
+    unordered_set<string> visited;
     
     // Initialize with begin_word
     vector<string> initial_ladder = {begin_word};
@@ -146,21 +149,73 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     visited.insert(begin_word);
     
     while (!ladder_queue.empty()) {
-        vector<string> ladder = ladder_queue.front();
+        vector<string> current_ladder = ladder_queue.front();
         ladder_queue.pop();
         
-        string last_word = ladder.back();
+        string last_word = current_ladder.back();
         
-        // Check all dictionary words
-        for (const string& word : word_list) {
-            if (is_adjacent(last_word, word) && visited.find(word) == visited.end()) {
-                visited.insert(word);
+        // Try all possible one-character changes
+        for (size_t i = 0; i < last_word.length(); i++) {
+            string new_word = last_word;
+            char original = last_word[i];
+            
+            // Try replacements (a-z)
+            for (char c = 'a'; c <= 'z'; c++) {
+                if (c == original) continue;
                 
-                vector<string> new_ladder = ladder;
-                new_ladder.push_back(word);
+                new_word[i] = c;
+                if (dict.count(new_word) && !visited.count(new_word)) {
+                    // Create a new ladder with this word
+                    vector<string> new_ladder = current_ladder;
+                    new_ladder.push_back(new_word);
+                    visited.insert(new_word);
+                    
+                    // Check if we've reached the target
+                    if (new_word == end_word) {
+                        return new_ladder;
+                    }
+                    
+                    ladder_queue.push(new_ladder);
+                }
+            }
+            
+            // Restore original character
+            new_word[i] = original;
+        }
+        
+        // Try insertions
+        for (size_t i = 0; i <= last_word.length(); i++) {
+            string new_word = last_word;
+            new_word.insert(i, 1, ' '); // Placeholder
+            
+            for (char c = 'a'; c <= 'z'; c++) {
+                new_word[i] = c;
                 
-                // Check if we've reached the end word
-                if (word == end_word) {
+                if (dict.count(new_word) && !visited.count(new_word)) {
+                    vector<string> new_ladder = current_ladder;
+                    new_ladder.push_back(new_word);
+                    visited.insert(new_word);
+                    
+                    if (new_word == end_word) {
+                        return new_ladder;
+                    }
+                    
+                    ladder_queue.push(new_ladder);
+                }
+            }
+        }
+        
+        // Try deletions
+        for (size_t i = 0; i < last_word.length(); i++) {
+            string new_word = last_word;
+            new_word.erase(i, 1);
+            
+            if (dict.count(new_word) && !visited.count(new_word)) {
+                vector<string> new_ladder = current_ladder;
+                new_ladder.push_back(new_word);
+                visited.insert(new_word);
+                
+                if (new_word == end_word) {
                     return new_ladder;
                 }
                 
@@ -170,7 +225,7 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     }
     
     // No ladder found
-    return vector<string>();
+    return {};
 }
 
 // Print a word ladder
