@@ -6,6 +6,9 @@ void error(string word1, string word2, string msg) {
     cerr << "Error: " << msg << " for words '" << word1 << "' and '" << word2 << "'" << endl;
 }
 
+// Forward declarations
+bool one_deletion_away(const string& longer_word, const string& shorter_word);
+
 // Calculate if edit distance between two strings is within a specified distance
 bool edit_distance_within(const std::string& str1, const std::string& str2, int d) {
     // Early exit if the strings differ in length by more than d
