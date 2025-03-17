@@ -1,5 +1,6 @@
 #include "ladder.h"
 #include <unistd.h>  // Add this for getcwd()
+#include <unordered_set>  // Add this for unordered_set
 
 void error(string word1, string word2, string msg) {
     cerr << "Error: " << msg << " for words '" << word1 << "' and '" << word2 << "'" << endl;
