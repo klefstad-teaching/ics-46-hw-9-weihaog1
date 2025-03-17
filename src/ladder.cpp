@@ -145,26 +145,47 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     ladder_queue.push(initial_ladder);
     visited.insert(begin_word);
     
+    // Precompute potential candidates by word length to reduce the search space
+    map<size_t, vector<string>> word_by_length;
+    for (const string& word : word_list) {
+        word_by_length[word.length()].push_back(word);
+    }
+    
     while (!ladder_queue.empty()) {
         vector<string> ladder = ladder_queue.front();
         ladder_queue.pop();
         
         string last_word = ladder.back();
+        size_t last_word_len = last_word.length();
         
-        // Check all dictionary words
-        for (const string& word : word_list) {
-            if (is_adjacent(last_word, word) && visited.find(word) == visited.end()) {
-                visited.insert(word);
-                
-                vector<string> new_ladder = ladder;
-                new_ladder.push_back(word);
-                
-                // Check if we've reached the end word
-                if (word == end_word) {
-                    return new_ladder;
+        // Only check words with lengths that could be adjacent
+        // (same length or differ by 1)
+        vector<vector<string>> candidate_lists;
+        if (word_by_length.find(last_word_len) != word_by_length.end()) {
+            candidate_lists.push_back(word_by_length[last_word_len]);
+        }
+        if (word_by_length.find(last_word_len + 1) != word_by_length.end()) {
+            candidate_lists.push_back(word_by_length[last_word_len + 1]);
+        }
+        if (last_word_len > 0 && word_by_length.find(last_word_len - 1) != word_by_length.end()) {
+            candidate_lists.push_back(word_by_length[last_word_len - 1]);
+        }
+        
+        for (const auto& candidates : candidate_lists) {
+            for (const string& word : candidates) {
+                if (is_adjacent(last_word, word) && visited.find(word) == visited.end()) {
+                    visited.insert(word);
+                    
+                    vector<string> new_ladder = ladder;
+                    new_ladder.push_back(word);
+                    
+                    // Check if we've reached the end word
+                    if (word == end_word) {
+                        return new_ladder;
+                    }
+                    
+                    ladder_queue.push(new_ladder);
                 }
-                
-                ladder_queue.push(new_ladder);
             }
         }
     }
