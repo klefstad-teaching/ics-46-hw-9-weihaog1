@@ -18,7 +18,7 @@ vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& prev
     int n = G.numVertices;
     vector<int> distance(n, INF);
     vector<bool> visited(n, false);
-    previous.resize(n, -1);
+    previous.assign(n, -1);
     
     // Priority queue (min heap) for Dijkstra's algorithm
     priority_queue<Node, vector<Node>, greater<Node>> pq;
@@ -61,12 +61,12 @@ vector<int> extract_shortest_path(const vector<int>& distances, const vector<int
     vector<int> path;
     
     // Check if there's a path
-    if (distances[destination] == INF) {
+    if (distances[destination] == INF || previous[destination] == -1) {
         return path;  // Empty path if no path exists
     }
     
     // Reconstruct the path from destination to source
-    for (int at = destination; at != -1; at = previous[at]) {
+    for (int at = destination; at != -1 && distances[at] != 0; at = previous[at]) {
         path.push_back(at);
     }
     

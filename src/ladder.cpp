@@ -78,7 +78,7 @@ bool is_adjacent(const string& word1, const string& word2) {
                 }
             }
         }
-        return differences == 1;
+        return differences <= 1;  // Changed to allow identical words (0 differences)
     }
     
     // Case 2: word1 is longer - must be a deletion
@@ -108,10 +108,7 @@ bool is_deletion(const string& longer_word, const string& shorter_word) {
 // Load dictionary words from a file
 void load_words(set<string>& word_list, const string& file_name) {
     // Print current directory for debugging
-    char cwd[1024];
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        cout << "Current working directory: " << cwd << endl;
-    }
+
     
     cout << "Attempting to open: " << file_name << endl;
     ifstream file(file_name);
